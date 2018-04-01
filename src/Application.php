@@ -1,7 +1,8 @@
 <?php
 namespace WebServer;
 
-use Beloplotov\Balance;
+use WebServer\Exceptions\InvalidMethodException;
+use WebServer\Exceptions\InvalidArgumentException;
 use WebServer\Interfaces\ApplicationInterface;
 use WebServer\Service\BracketFactory;
 
@@ -10,11 +11,14 @@ class Application implements ApplicationInterface
     const OK = 200;
     const BAD = 400;
 
+    /**
+     * @var string
+     */
     private $varString = 'string';
     /**
      * @var
      */
-    protected $checkBrackets;
+    private $checkBrackets;
 
     /**
      * @var
@@ -24,7 +28,7 @@ class Application implements ApplicationInterface
     /**
      * @var
      */
-    protected $httpResponse;
+    private $httpResponse;
 
     /**
      * Application constructor.
@@ -40,29 +44,32 @@ class Application implements ApplicationInterface
 
     }
 
-    /**
+    /** Function request string with brackets send from user
+     *
      * @return mixed
      */
     public function request()
     {
         if(!$this->httpRequest->isPost()){
-            throw new \InvalidArgumentException("Error isPost, 405");
+            throw new InvalidMethodException("Error, it is not method POST!");
         }
         if(!$this->httpRequest->getValue($this->varString)){
-            throw new \InvalidArgumentException("Error getValue, 400");
+            throw new \InvalidArgumentException("Invalid request value!");
         }
        return $this->httpRequest->getValue($this->varString);
     }
 
-    /**
+    /** Function get http code 200 or 400
      *
+     * @return $this
      */
     public function getCode()
     {
-        return $this->httpResponse->getHTTPCode();
+        return $this->httpResponse->getHTTPCodeAndMessage();
     }
 
-    /**
+    /** Function check bracket in request user
+     *
      * @return mixed|void
      */
     public function run()
@@ -71,17 +78,17 @@ class Application implements ApplicationInterface
             $result = $this->checkBrackets->setBracket($this->request());
 
         if ( $result['message'] == 'Недопустимые символы' ) {
-            throw new \Exception('Недопустимые символы');
+            throw new \InvalidArgumentException('Invalid character');
         }
         if ( $result !== true ){
-            throw new \Exception("Скобки стоят не правильно");
+            throw new \InvalidArgumentException("Error, Brackets are not right");
         }
 
-        return $this->httpResponse->setHTTPCode(self::OK);
+        return $this->httpResponse->setHTTPCodeAndMessage(self::OK,'Brackets are right');
 
-    } catch (\Exception $e){
+    } catch (\InvalidArgumentException $e){
 
-        return $this->httpResponse->setHTTPCode(self::BAD);
+        return $this->httpResponse->setHTTPCodeAndMessage(self::BAD, $e->getMessage());
     }
     }
 }

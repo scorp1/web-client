@@ -1,10 +1,9 @@
 <?php
 namespace WebServer\Interfaces;
 
-
 interface HttpResponseInterface
 {
-    public function setHTTPCode($code);
+    public function setHTTPCodeAndMessage($code, $message);
 
-    public function getHTTPCode();
+    public function getHTTPCodeAndMessage();
 }

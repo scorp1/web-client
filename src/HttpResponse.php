@@ -6,25 +6,29 @@ use WebServer\Interfaces\HttpResponseInterface;
 class HttpResponse implements HttpResponseInterface
 {
     /**
-     * @var
+     * @var array
      */
-    private $codeStatus;
+    private $arrayCodeStatus = [];
 
     /**
      * @param $code
+     * @param $message
      */
-    public function setHTTPCode($code)
+    public function setHTTPCodeAndMessage($code, $message)
     {
-        $this->codeStatus = $code;
+        $this->arrayCodeStatus[code] = $code;
+        $this->arrayCodeStatus[message] = $message;
     }
 
     /**
      * @return $this
      */
-    public function getHTTPCode()
+    public function getHTTPCodeAndMessage()
     {
-        http_response_code($this->codeStatus);
+        http_response_code($this->arrayCodeStatus[code]);
+        print_r($this->arrayCodeStatus[message]);
 
         return $this;
     }
+
 }
